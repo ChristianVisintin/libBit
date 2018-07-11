@@ -89,13 +89,12 @@ byte extractBits(byte src, int bits, short direction) {
 int getBits(byte* source, int index, int bits) {
 
   byte* dest = (byte*)calloc((bits % 8) + 1, sizeof(byte));
-  const int byteSize = BYTE_SIZE;
   byte* initSource = source;
 
   //Move source to start Position
   //Is index at the start of a byte?
-  int bitInStartPosByte = index % byteSize;
-  source += (index / byteSize);
+  int bitInStartPosByte = index % BYTE_SIZE;
+  source += (index / BYTE_SIZE);
   int remainingBits = bits;
   int currPos = -1; //Current byte
   //If index is NOT at beginning of a byte... extract first bits from the starting byte
@@ -103,9 +102,9 @@ int getBits(byte* source, int index, int bits) {
     //In bitInStartPosByte we have the bit to start from, we need to get the bits in byte starting from this index
     //Extract from the first byte the amount of bits we need
     byte firstByte = extractBits(*source, bitInStartPosByte, LEFT_EXTRACT);
-    int bitRemovedFromFirstByte = byteSize - bitInStartPosByte;
+    int bitRemovedFromFirstByte = BYTE_SIZE - bitInStartPosByte;
     //If we need less than a byte, remove also from the last bits
-    if (bits < byteSize && (index + bits) < 8) {
+    if (bits < BYTE_SIZE && (bitInStartPosByte + bits) < 8) {
       //bits + bitInStartPosByte because the byte got moved of bitInStartPosByte positions
       firstByte = extractBits(firstByte, bits + bitInStartPosByte, RIGHT_EXTRACT);
     }
@@ -121,7 +120,7 @@ int getBits(byte* source, int index, int bits) {
   }
   //Then continue as if the index were 0
   //While remaining bits are more than 8, take byte per byte as usual
-  while (remainingBits >= byteSize) {
+  while (remainingBits >= BYTE_SIZE) {
     currPos++;
     memcpy(dest + currPos, source, 1);
 #ifdef LIBBITDEBUG
@@ -129,7 +128,7 @@ int getBits(byte* source, int index, int bits) {
 #endif
     //Move source forward for a byte
     source++;
-    remainingBits -= byteSize;
+    remainingBits -= BYTE_SIZE;
   }
   //If remainingBits is at least 1...
   if (remainingBits > 0) {
@@ -138,7 +137,7 @@ int getBits(byte* source, int index, int bits) {
     //Store last byte to copy into a variable
     byte lastByte = *source;
     //Get remaining bits => lastByte & (256 - pow(2, remainingBits))
-    const int diffBits = byteSize - remainingBits;
+    const int diffBits = BYTE_SIZE - remainingBits;
     lastByte = lastByte & (256 - (byte)pow(2, (double)diffBits));
     //And finally shift the lastByte to get only the bits we actually need
     lastByte = lastByte >> diffBits;
@@ -150,8 +149,7 @@ int getBits(byte* source, int index, int bits) {
   }
   //Reset source
   source = initSource;
-  //int shift = bits < BYTE_SIZE * 2 ? abs(BYTE_SIZE - bitInStartPosByte) % 8 : bits % 8;
-  int shift = bits < BYTE_SIZE ? BYTE_SIZE - bitInStartPosByte : (bits % BYTE_SIZE) + (bitInStartPosByte);
+  int shift = (bitInStartPosByte + bits) % 8;
   int res = byteToInt(dest, currPos, shift);
   free(dest);
   return res;

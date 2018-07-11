@@ -1,6 +1,6 @@
 # libBit
 
-Current Version 1.0 (10/07/2018)
+Current Version 1.1 (11/07/2018)
 
 ## Introduction
 

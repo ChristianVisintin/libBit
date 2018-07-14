@@ -23,9 +23,8 @@
 #define BIT_H
 
 #define BYTE_SIZE 8
-#ifndef uint8_t
-typedef unsigned char uint8_t;
-#endif
+
+#include <inttypes.h>
 
 typedef uint8_t byte;
 

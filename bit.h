@@ -24,10 +24,18 @@
 
 #define BYTE_SIZE 8
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 
 typedef uint8_t byte;
 
 int getBits(byte* source, int index, int bitSize);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
